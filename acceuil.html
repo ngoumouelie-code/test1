@@ -102,6 +102,11 @@
         background: transparent;
         cursor: pointer;
         font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
       }
 
       .btn.primary {
@@ -220,6 +225,70 @@
         font-size: 0.95rem;
       }
 
+      .data-panel {
+        display: grid;
+        gap: 20px;
+      }
+
+      .data-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .data-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .list-card {
+        padding: 22px;
+        border-radius: var(--radius);
+        background: var(--surface);
+        border: 1px solid var(--outline);
+        display: grid;
+        gap: 12px;
+      }
+
+      .list-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .list-card ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 10px;
+      }
+
+      .list-card li {
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--outline);
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.9rem;
+      }
+
+      .list-card li.empty {
+        justify-content: center;
+        color: var(--muted);
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
       .cta {
         padding: 28px;
         border-radius: var(--radius);
@@ -259,7 +328,8 @@
 
       @media (max-width: 720px) {
         .stats,
-        .features {
+        .features,
+        .data-grid {
           grid-template-columns: 1fr;
         }
 
@@ -281,10 +351,10 @@
           <nav>
             <a href="#produit">Produit</a>
             <a href="#fonctionnalites">Fonctionnalites</a>
-            <a href="#tarifs">Tarifs</a>
+            <a href="#donnees">Donnees</a>
             <a href="#contact">Contact</a>
           </nav>
-          <button class="btn">Se connecter</button>
+          <a class="btn" href="test.html">Se connecter</a>
         </header>
       </div>
 
@@ -294,8 +364,8 @@
           <h1>La plateforme pour lancer tes projets plus vite.</h1>
           <p>Centralise tes actions, suis tes objectifs et garde un controle total en quelques clics.</p>
           <div class="hero-actions">
-            <button class="btn primary">Demarrer</button>
-            <button class="btn">Voir la demo</button>
+            <a class="btn primary" href="test.html">Demarrer</a>
+            <a class="btn" href="#fonctionnalites">Voir la demo</a>
           </div>
         </div>
         <aside class="hero-card">
@@ -350,14 +420,118 @@
         </article>
       </div>
 
+      <div class="container data-panel" id="donnees">
+        <div class="data-head">
+          <div>
+            <span class="pill">Donnees JSON</span>
+            <h2>Inscriptions recentes</h2>
+            <p class="muted">Gestion simplifiee via JSON et une synchro AJAX simulee.</p>
+          </div>
+          <a class="btn primary" href="test.html">Nouvelle inscription</a>
+        </div>
+        <div class="data-grid">
+          <div class="stat">
+            <h3 id="usersCount">0</h3>
+            <p>Utilisateurs inscrits</p>
+          </div>
+          <div class="stat">
+            <h3 id="lastSignup">Aucune</h3>
+            <p>Derniere inscription</p>
+          </div>
+        </div>
+        <div class="list-card">
+          <div class="list-head">
+            <strong>Derniers utilisateurs</strong>
+            <button class="btn" type="button" id="refreshBtn">Actualiser (AJAX)</button>
+          </div>
+          <ul id="usersList"></ul>
+          <p id="syncStatus" class="muted">Synchronisation en attente.</p>
+        </div>
+      </div>
+
       <div class="container cta" id="tarifs">
         <h2>Prends une longueur d'avance aujourd'hui.</h2>
-        <button class="btn primary">Creer un compte</button>
+        <a class="btn primary" href="test.html">Creer un compte</a>
       </div>
 
       <div class="container" id="contact">
         <footer>Besoin d'aide ? Contacte notre equipe support a tout moment.</footer>
       </div>
     </div>
+
+    <script>
+      (() => {
+        const DB_KEY = "rdb_db_v1";
+        const countEl = document.getElementById("usersCount");
+        const lastEl = document.getElementById("lastSignup");
+        const listEl = document.getElementById("usersList");
+        const statusEl = document.getElementById("syncStatus");
+        const refreshBtn = document.getElementById("refreshBtn");
+
+        const loadDB = () => {
+          try {
+            const raw = localStorage.getItem(DB_KEY);
+            if (!raw) {
+              return { users: [], lastId: 0, lastSignup: null };
+            }
+            const db = JSON.parse(raw);
+            if (!Array.isArray(db.users)) {
+              db.users = [];
+            }
+            return db;
+          } catch {
+            return { users: [], lastId: 0, lastSignup: null };
+          }
+        };
+
+        const ajaxGet = () => new Promise((resolve) => {
+          setTimeout(() => resolve(loadDB()), 350);
+        });
+
+        const formatDate = (iso) => {
+          if (!iso) return "Aucune";
+          const date = new Date(iso);
+          if (Number.isNaN(date.getTime())) return "Aucune";
+          return date.toLocaleString("fr-FR");
+        };
+
+        const render = (db) => {
+          countEl.textContent = String(db.users.length || 0);
+          lastEl.textContent = formatDate(db.lastSignup);
+          listEl.innerHTML = "";
+
+          if (!db.users.length) {
+            const empty = document.createElement("li");
+            empty.className = "empty";
+            empty.textContent = "Aucune inscription pour le moment.";
+            listEl.appendChild(empty);
+            return;
+          }
+
+          db.users.slice(0, 5).forEach((user) => {
+            const item = document.createElement("li");
+            const name = document.createElement("span");
+            const email = document.createElement("span");
+            name.textContent = `${user.prenom} ${user.nom}`;
+            email.textContent = user.email;
+            item.appendChild(name);
+            item.appendChild(email);
+            listEl.appendChild(item);
+          });
+        };
+
+        const sync = () => {
+          statusEl.textContent = "Synchronisation...";
+          ajaxGet().then((db) => {
+            render(db);
+            const now = new Date();
+            statusEl.textContent = `Derniere synchro: ${now.toLocaleTimeString("fr-FR")}`;
+          });
+        };
+
+        refreshBtn.addEventListener("click", sync);
+        sync();
+      })();
+    </script>
   </body>
 </html>
