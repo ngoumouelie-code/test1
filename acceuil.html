@@ -1,0 +1,363 @@
+﻿<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Accueil</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap");
+
+      :root {
+        --bg: #0b0f1f;
+        --bg-2: #131b33;
+        --surface: #151f3d;
+        --surface-2: #1c2a4f;
+        --text: #f7f8ff;
+        --muted: #a6b1cc;
+        --accent: #7cf0d0;
+        --accent-2: #5aa7ff;
+        --outline: rgba(255, 255, 255, 0.08);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "DM Sans", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(900px 540px at 10% 10%, rgba(124, 240, 208, 0.14), transparent 60%),
+          radial-gradient(800px 620px at 90% 20%, rgba(90, 167, 255, 0.16), transparent 55%),
+          linear-gradient(150deg, var(--bg), var(--bg-2));
+        min-height: 100vh;
+      }
+
+      h1, h2, h3 {
+        font-family: "Sora", sans-serif;
+        letter-spacing: -0.01em;
+      }
+
+      .page {
+        display: grid;
+        gap: 64px;
+        padding: 32px 16px 48px;
+      }
+
+      .container {
+        width: min(1120px, 100%);
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .brand-mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: linear-gradient(130deg, var(--accent), var(--accent-2));
+        display: grid;
+        place-items: center;
+        color: #0b0f1f;
+        font-weight: 700;
+      }
+
+      nav {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
+
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.95rem;
+      }
+
+      nav a:hover {
+        color: var(--text);
+      }
+
+      .btn {
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: 1px solid var(--outline);
+        color: var(--text);
+        background: transparent;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn.primary {
+        border: none;
+        color: #0b0f1f;
+        background: linear-gradient(130deg, var(--accent), var(--accent-2));
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 32px;
+        align-items: center;
+      }
+
+      .hero-card {
+        padding: 28px;
+        border-radius: var(--radius);
+        background: var(--surface);
+        border: 1px solid var(--outline);
+        box-shadow: 0 26px 60px rgba(6, 10, 22, 0.35);
+        animation: float-in 0.7s ease-out both;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.2rem, 4vw, 3.4rem);
+        margin: 0 0 16px;
+      }
+
+      .hero p {
+        color: var(--muted);
+        font-size: 1.05rem;
+        margin: 0 0 24px;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(124, 240, 208, 0.12);
+        color: var(--accent);
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .mini-grid {
+        display: grid;
+        gap: 14px;
+        margin-top: 20px;
+      }
+
+      .mini-card {
+        padding: 14px;
+        border-radius: 12px;
+        background: var(--surface-2);
+        border: 1px solid var(--outline);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+
+      .stat {
+        padding: 20px;
+        border-radius: var(--radius);
+        background: rgba(21, 31, 61, 0.75);
+        border: 1px solid var(--outline);
+      }
+
+      .stat h3 {
+        margin: 0 0 8px;
+        font-size: 1.4rem;
+      }
+
+      .stat p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+
+      .feature {
+        padding: 22px;
+        border-radius: var(--radius);
+        background: var(--surface);
+        border: 1px solid var(--outline);
+      }
+
+      .feature h3 {
+        margin: 10px 0 8px;
+        font-size: 1.1rem;
+      }
+
+      .feature p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .cta {
+        padding: 28px;
+        border-radius: var(--radius);
+        background: linear-gradient(120deg, rgba(124, 240, 208, 0.18), rgba(90, 167, 255, 0.18));
+        border: 1px solid var(--outline);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .cta h2 {
+        margin: 0;
+      }
+
+      footer {
+        color: var(--muted);
+        font-size: 0.85rem;
+        text-align: center;
+        padding-top: 10px;
+      }
+
+      @keyframes float-in {
+        from { opacity: 0; transform: translateY(18px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
+        nav {
+          display: none;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .stats,
+        .features {
+          grid-template-columns: 1fr;
+        }
+
+        .cta {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="container">
+        <header>
+          <div class="brand">
+            <div class="brand-mark">R</div>
+            <span>RDB Alpha</span>
+          </div>
+          <nav>
+            <a href="#produit">Produit</a>
+            <a href="#fonctionnalites">Fonctionnalites</a>
+            <a href="#tarifs">Tarifs</a>
+            <a href="#contact">Contact</a>
+          </nav>
+          <button class="btn">Se connecter</button>
+        </header>
+      </div>
+
+      <div class="container hero">
+        <div>
+          <span class="pill">Nouveau tableau de bord</span>
+          <h1>La plateforme pour lancer tes projets plus vite.</h1>
+          <p>Centralise tes actions, suis tes objectifs et garde un controle total en quelques clics.</p>
+          <div class="hero-actions">
+            <button class="btn primary">Demarrer</button>
+            <button class="btn">Voir la demo</button>
+          </div>
+        </div>
+        <aside class="hero-card">
+          <h2>Ton espace en un coup d'oeil</h2>
+          <div class="mini-grid">
+            <div class="mini-card">
+              <span>Taches terminees</span>
+              <strong>128</strong>
+            </div>
+            <div class="mini-card">
+              <span>Clients actifs</span>
+              <strong>42</strong>
+            </div>
+            <div class="mini-card">
+              <span>Progression</span>
+              <strong>87%</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="container stats" id="produit">
+        <div class="stat">
+          <h3>+3x</h3>
+          <p>Productivite sur tes cycles de travail.</p>
+        </div>
+        <div class="stat">
+          <h3>24h</h3>
+          <p>Pour mettre en place ton premier espace.</p>
+        </div>
+        <div class="stat">
+          <h3>98%</h3>
+          <p>Satisfaction utilisateur sur les equipes pilotes.</p>
+        </div>
+      </div>
+
+      <div class="container features" id="fonctionnalites">
+        <article class="feature">
+          <span class="pill">Pilotage</span>
+          <h3>Planning clair</h3>
+          <p>Une vue simple pour organiser chaque etape sans te perdre.</p>
+        </article>
+        <article class="feature">
+          <span class="pill">Equipe</span>
+          <h3>Collaboration</h3>
+          <p>Assigne, commente et avance ensemble dans le meme espace.</p>
+        </article>
+        <article class="feature">
+          <span class="pill">Securite</span>
+          <h3>Acces protege</h3>
+          <p>Controle fin des acces pour chaque membre et chaque role.</p>
+        </article>
+      </div>
+
+      <div class="container cta" id="tarifs">
+        <h2>Prends une longueur d'avance aujourd'hui.</h2>
+        <button class="btn primary">Creer un compte</button>
+      </div>
+
+      <div class="container" id="contact">
+        <footer>Besoin d'aide ? Contacte notre equipe support a tout moment.</footer>
+      </div>
+    </div>
+  </body>
+</html>
