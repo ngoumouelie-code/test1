@@ -107,7 +107,7 @@
         padding: 48px;
         display: grid;
         align-content: center;
-        gap: 24px;
+        gap: 20px;
         background: rgba(10, 20, 35, 0.25);
         border-left: 1px solid rgba(255, 255, 255, 0.06);
       }
@@ -202,6 +202,46 @@
         color: var(--danger);
       }
 
+      .status {
+        min-height: 40px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px dashed rgba(255, 255, 255, 0.12);
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .status.ok {
+        color: var(--accent);
+        border-color: rgba(94, 225, 180, 0.5);
+        background: rgba(94, 225, 180, 0.08);
+      }
+
+      .status.error {
+        color: var(--danger);
+        border-color: rgba(255, 122, 122, 0.6);
+        background: rgba(255, 122, 122, 0.08);
+      }
+
+      .status.info {
+        color: var(--accent-2);
+        border-color: rgba(74, 192, 255, 0.6);
+        background: rgba(74, 192, 255, 0.08);
+      }
+
+      .checkbox {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .checkbox input {
+        accent-color: var(--accent);
+      }
+
       @keyframes float-in {
         from { opacity: 0; transform: translateY(18px) scale(0.98); }
         to { opacity: 1; transform: translateY(0) scale(1); }
@@ -255,20 +295,21 @@
           <h2>Creer un compte</h2>
           <p class="note">Champs obligatoires <span class="required">*</span></p>
         </div>
-        <form>
+        <div id="status" class="status" role="status" aria-live="polite">Pret a creer ton compte.</div>
+        <form id="signupForm">
           <div class="row">
             <div class="field">
               <label for="prenom">Prenom <span class="required">*</span></label>
-              <input id="prenom" name="prenom" type="text" placeholder="Ex: Aline" required />
+              <input id="prenom" name="prenom" type="text" placeholder="Ex: Aline" autocomplete="given-name" required />
             </div>
             <div class="field">
               <label for="nom">Nom <span class="required">*</span></label>
-              <input id="nom" name="nom" type="text" placeholder="Ex: Dupont" required />
+              <input id="nom" name="nom" type="text" placeholder="Ex: Dupont" autocomplete="family-name" required />
             </div>
           </div>
           <div class="field">
             <label for="email">Email <span class="required">*</span></label>
-            <input id="email" name="email" type="email" placeholder="exemple@mail.com" required />
+            <input id="email" name="email" type="email" placeholder="exemple@mail.com" autocomplete="email" required />
           </div>
           <div class="field">
             <label for="role">Profil</label>
@@ -281,25 +322,116 @@
           <div class="row">
             <div class="field">
               <label for="password">Mot de passe <span class="required">*</span></label>
-              <input id="password" name="password" type="password" placeholder="8 caracteres minimum" required />
+              <input id="password" name="password" type="password" placeholder="8 caracteres minimum" minlength="8" autocomplete="new-password" required />
             </div>
             <div class="field">
               <label for="confirm">Confirmation <span class="required">*</span></label>
-              <input id="confirm" name="confirm" type="password" placeholder="Retape le mot de passe" required />
+              <input id="confirm" name="confirm" type="password" placeholder="Retape le mot de passe" minlength="8" autocomplete="new-password" required />
             </div>
           </div>
-          <div class="field">
-            <label>
-              <input type="checkbox" required />
-              J'accepte les conditions d'utilisation
-            </label>
-          </div>
+          <label class="checkbox">
+            <input type="checkbox" name="terms" required />
+            J'accepte les conditions d'utilisation
+          </label>
           <div class="actions">
             <button type="submit">Creer mon compte</button>
-            <p class="muted">Deja inscrit ? <a href="#">Se connecter</a></p>
+            <p class="muted">Deja inscrit ? <a href="acceuil.html">Retour a l'accueil</a></p>
           </div>
         </form>
+        <p class="note">Les inscriptions sont sauvegardees en JSON (localStorage).</p>
       </section>
     </main>
+
+    <script>
+      (() => {
+        const DB_KEY = "rdb_db_v1";
+        const form = document.getElementById("signupForm");
+        const statusEl = document.getElementById("status");
+
+        const setStatus = (message, type) => {
+          statusEl.textContent = message;
+          statusEl.className = `status ${type || ""}`.trim();
+        };
+
+        const loadDB = () => {
+          try {
+            const raw = localStorage.getItem(DB_KEY);
+            if (!raw) {
+              return { users: [], lastId: 0, lastSignup: null };
+            }
+            const db = JSON.parse(raw);
+            if (!Array.isArray(db.users)) {
+              db.users = [];
+            }
+            if (typeof db.lastId !== "number") {
+              db.lastId = 0;
+            }
+            return db;
+          } catch {
+            return { users: [], lastId: 0, lastSignup: null };
+          }
+        };
+
+        const saveDB = (db) => {
+          localStorage.setItem(DB_KEY, JSON.stringify(db));
+        };
+
+        const ajax = (fn) => new Promise((resolve) => {
+          setTimeout(() => resolve(fn()), 400);
+        });
+
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          const formData = new FormData(form);
+          const user = {
+            prenom: String(formData.get("prenom")).trim(),
+            nom: String(formData.get("nom")).trim(),
+            email: String(formData.get("email")).trim().toLowerCase(),
+            role: String(formData.get("role")),
+            password: String(formData.get("password")),
+            confirm: String(formData.get("confirm")),
+          };
+
+          if (user.password !== user.confirm) {
+            setStatus("Les mots de passe ne correspondent pas.", "error");
+            return;
+          }
+
+          setStatus("Enregistrement...", "info");
+
+          ajax(() => {
+            const db = loadDB();
+            const exists = db.users.some((item) => item.email === user.email);
+            if (exists) {
+              return { ok: false, message: "Email deja utilise." };
+            }
+
+            const record = {
+              id: ++db.lastId,
+              prenom: user.prenom,
+              nom: user.nom,
+              email: user.email,
+              role: user.role,
+              createdAt: new Date().toISOString(),
+            };
+
+            db.users.unshift(record);
+            db.lastSignup = record.createdAt;
+            saveDB(db);
+
+            return { ok: true, record };
+          }).then((result) => {
+            if (!result.ok) {
+              setStatus(result.message, "error");
+              return;
+            }
+
+            form.reset();
+            setStatus(`Compte cree pour ${result.record.prenom} ${result.record.nom}.`, "ok");
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
